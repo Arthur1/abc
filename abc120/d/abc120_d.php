@@ -1,22 +1,33 @@
 <?php
+/**
+ * ABC120
+ * D - Decayed Bridges
+ */
+
+// $s = trim(fgets(STDIN));
+// fscanf(STDIN, "%d %d", $a, $b);
+// $n = array_map('intval', explode(' ', trim(fgets(STDIN))));
+
+fscanf(STDIN, "%d %d", $N, $M);
+for ($i = 0; $i < $M; $i++) {
+    fscanf(STDIN, "%d %d", $A[$i], $B[$i]); 
+}
+
+echo $result, PHP_EOL;
+
 class Node
 {
     private $parent_index;
     private $rank;
-    private $size;
     public function __construct(int $parent_index, int $rank) {
         $this->parent_index = $parent_index;
         $this->rank = $rank;
-        $this->size = 1;
     }
     public function get_parent_index(): int {
         return $this->parent_index;
     }
     public function get_rank(): int {
         return $this->rank;
-    }
-    public function get_size(): int {
-        return $this->size;
     }
     public function set_parent_index(int $parent_index) {
         $this->parent_index = $parent_index;
@@ -27,9 +38,6 @@ class Node
     public function increment_rank() {
         $this->rank++;
     }
-    public function add_size($size) {
-        $this->size += $size;
-    }
 }
 
 class Union_Find_Tree
@@ -37,7 +45,7 @@ class Union_Find_Tree
     private $nodes = [];
     public function __construct(int $node_number) {
         for ($i = 0; $i < $node_number; $i++) {
-            $this->nodes[$i] = new Node($i, 0);
+            $this->nodes[$i] = new Nodes($i, 0);
         }
     }
 
@@ -54,7 +62,6 @@ class Union_Find_Tree
         }
         $root_index = $this->find_root($parent_index);
         $this->nodes[$target]->set_parent_index($root_index);
-        $this->nodes[$root_index]->add_size(1);
         return $root_index;
     }
 
@@ -73,23 +80,12 @@ class Union_Find_Tree
         $y_root_node = $this->nodes[$y_root_index];
         if ($x_root_node->get_rank() < $y_root_node->get_rank()) {
             $this->nodes[$x]->set_parent_index($y);
-            $x_root_node->add_size($this->nodes[$y]->get_size());
         } else {
             $this->nodes[$y]->set_parent_index($x);
-            $y_root_node->add_size($this->nodes[$x]->get_size());
             if ($x_root_node->get_rank() === $y_root_node->get_rank()) {
                 $x_root_node->increment_rank();
             }
         }
-    }
-
-    /**
-     * インデックスxが含まれる集合のサイズを返す
-     * @param integer $x
-     * @return integer
-     */
-    public function get_size(int $x): int {
-        return $this->nodes[$this->find_root($x)]->get_size();
     }
 
     /**
@@ -103,27 +99,3 @@ class Union_Find_Tree
     }
 }
 
-/**
- * テスト
- */
-$unind_find_tree = new Union_Find_Tree(8);
-$unind_find_tree->unite(0, 1);
-$unind_find_tree->unite(1, 2);
-$unind_find_tree->unite(2, 3);
-$unind_find_tree->unite(3, 4);
-$unind_find_tree->unite(5, 6);
-$unind_find_tree->unite(6, 7);
-var_dump($unind_find_tree);
-
-var_dump($unind_find_tree->get_size(0));
-var_dump($unind_find_tree->get_size(1));
-var_dump($unind_find_tree->get_size(2));
-var_dump($unind_find_tree->get_size(3));
-var_dump($unind_find_tree->get_size(4));
-var_dump($unind_find_tree->get_size(5));
-if ($unind_find_tree->get_size(0) !== 5) throw new Exception;
-if ($unind_find_tree->get_size(5) !== 3) throw new Exception;
-if (! $unind_find_tree->is_same_group(0, 4)) throw new Exception;
-if ($unind_find_tree->is_same_group(4, 5)) throw new Exception;
-if (! $unind_find_tree->is_same_group(5, 7)) throw new Exception;
-echo 'Success!', PHP_EOL;
